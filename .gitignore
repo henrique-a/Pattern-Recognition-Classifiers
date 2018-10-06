@@ -1,0 +1,9 @@
+/Plots
+*.pdf
+*.code-workspace
+*.xlsx
+plotando.py
+resultados.py
+resultados_CQ.txt
+resultados_DMC.txt
+resultados_NN.txt
