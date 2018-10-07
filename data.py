@@ -33,13 +33,13 @@ def replace_NaN(df):
     return df
 
 def main():
-    df = pd.read_csv('mushroom.csv')    
+    df = pd.read_csv('data/mushroom.csv')    
     df = df.sample(n=1000)
     df['Class'] = df['Class'].map({'e': 0, 'p': 1})
     df.replace('?', np.nan, inplace=True)
     df.fillna(df['stalk-root'].value_counts().index[0], inplace=True)
     df = convert_to_numeric(df)
-    df.to_csv('resample_numeric.csv')
+    df.to_csv('data/resample_numeric.csv')
 
 if __name__ == "__main__":
     main()

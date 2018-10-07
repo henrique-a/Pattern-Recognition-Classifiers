@@ -116,7 +116,7 @@ def test_classifier(classifier, X, y):
 
 def main():
 
-    df = pd.read_csv('resample_numeric.csv')
+    df = pd.read_csv('data/resample_numeric.csv')
     X = df.drop(columns=['id', 'Class']).values
     y = df['Class'].values
 
