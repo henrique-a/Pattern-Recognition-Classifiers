@@ -122,8 +122,8 @@ def main():
     X = df.drop(columns=['id', 'Class']).values
     y = df['Class'].values
 
-    #test_classifier(Classifier.NN, X, y)
-    #test_classifier(Classifier.MDC, X, y)
+    test_classifier(Classifier.NN, X, y)
+    test_classifier(Classifier.MDC, X, y)
     test_classifier(Classifier.QC, X, y)
 
 if __name__ == '__main__':
