@@ -31,10 +31,12 @@ def partition(X, y, percent):
 
 def test_classifier(classifier, X, y):
 
+    min_true_positives = np.inf
+    max_true_positives = 0
+
     for _ in range(100):
 
         X_train, X_test, y_train, y_test = partition(X, y, 0.8)
-
         n_e = list(y_test).count(0)
         n_p = list(y_test).count(1)
         y_pred = np.empty([len(y_test)])
@@ -44,15 +46,17 @@ def test_classifier(classifier, X, y):
         true_positives = 0
 
         for i in range(len(X_test)):
-            
+            idx = 0
             if classifier is Classifier.NN:
-                idx = classifiers.NN(X_test[i], pd.DataFrame(X_train))
+                idx = classifiers.NN(X_test[i], X_train)
+                y_pred[i] = y_train[idx]
             elif classifier is Classifier.MDC:
-                idx = classifiers.MDC(X_test[i], pd.DataFrame(X_train), y_train)
+                idx = classifiers.MDC(X_test[i], X_train, y_train)
+                y_pred[i] = idx
             elif classifier is Classifier.QC:
-                idx = classifiers.QC(X_test[i], pd.DataFrame(X_train), y_train)
+                idx = classifiers.QC(X_test[i], X_train, y_train)
+                y_pred[i] = idx
 
-            y_pred[i] = idx
             if y_pred[i] == y_test[i]:
                 true_positives += 1
                 if y_pred[i] == 0:
@@ -70,9 +74,9 @@ def test_classifier(classifier, X, y):
             worst_y_test = y_test
             min_true_positives = true_positives
 
-        print("True positives: {}".format(true_positives))
-        print("True positives e: {}".format(true_positives_e))
-        print("True positives p: {}".format(true_positives_p))
+        print("True positives: {} from {} samples".format(true_positives, len(y_test)))
+        print("True positives e: {} from {} samples".format(true_positives_e, n_e))
+        print("True positives p: {} from {} samples".format(true_positives_p, n_p))
 
         hit_rates = []
         hit_rates_p = []
@@ -81,9 +85,7 @@ def test_classifier(classifier, X, y):
         worst_y_pred = np.array(0)
         best_y_test = np.array(0)
         worst_y_test = np.array(0)
-        min_true_positives = np.inf
-        max_true_positives = 0
-
+        
         hit_rate = true_positives / len(y_test)
         hit_rates.append(hit_rate)
         hit_rate_e = true_positives_e / n_e
@@ -120,6 +122,9 @@ def main():
     X = df.drop(columns=['id', 'Class']).values
     y = df['Class'].values
 
-    test_classifier(Classifier.NN, X, y)
-    test_classifier(Classifier.MDC, X, y)
+    #test_classifier(Classifier.NN, X, y)
+    #test_classifier(Classifier.MDC, X, y)
     test_classifier(Classifier.QC, X, y)
+
+if __name__ == '__main__':
+    main()

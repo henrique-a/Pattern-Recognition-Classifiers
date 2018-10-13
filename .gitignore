@@ -2,6 +2,7 @@
 *.pdf
 *.code-workspace
 *.xlsx
+*.pyc
 plotando.py
 resultados.py
 resultados_CQ.txt

@@ -14,18 +14,18 @@ def get_centroids(X, y):
 
     n1 = list(y).count(0) # Class 1
     n2 = list(y).count(1) # CLass 2
-    m = np.array([np.zeros(X.shape[1]), np.zeros(X.shape[1])])
+    M = np.array([np.zeros(X.shape[1]), np.zeros(X.shape[1])])
 
     for i in range(X.shape[0]):
         if y[i] == 0:
-            m[0] = m[0] + X[i]
+            M[0] = M[0] + X[i]
         elif y[i] == 1:
-            m[1] = m[1] + X[i]
+            M[1] = M[1] + X[i]
  
-    m[0] = m[0] / n1
-    m[1] = m[1] / n2
+    M[0] = M[0] / n1
+    M[1] = M[1] / n2
 
-    return m
+    return M
 
 # Nearest Neighbour Classifier
 def NN(x, X):
@@ -42,18 +42,18 @@ def NN(x, X):
 
 # Minimum Distance from the Centroid Classifier
 def MDC(x, X, y):
-    m = get_centroids(X, y)
-    return NN(x, m)
+    M = get_centroids(X, y)
+    return NN(x, M)
 
 # Quadratic Classifier
 def QC(x, X, y):
-    C = X.cov().values
+    C = np.cov(X.T)
     C_inv = np.linalg.pinv(C)
-    m = get_centroids(X.values, y)
+    M = get_centroids(X, y)
     min_i = 0
     min_dist = np.inf
-    for i in range(m.shape[0]):
-        dist = mahalanobis_distance(x, m[i], C_inv)
+    for i in range(M.shape[0]):
+        dist = mahalanobis_distance(x, M[i], C_inv)
         if dist < min_dist:
             min_dist = dist
             min_i = i
