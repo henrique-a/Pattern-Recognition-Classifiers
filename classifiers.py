@@ -27,7 +27,7 @@ def get_centroids(X, y):
     M[1] = M[1] / n2
     return M
 
-# Nearest Neighbour Classifier
+# Nearest Neighbours Classifier
 def KNN(x, X, y, k=3):
 
     distances = []
@@ -39,7 +39,7 @@ def KNN(x, X, y, k=3):
     pred = Counter(labels).most_common(1)[0][0]           
     return pred
 
-# Minimum Distance from the Centroid Classifier
+# Minimum Distance to the Centroid Classifier
 def MDC(x, X, y):
     M = get_centroids(X, y)
     y = np.array([0, 1])
