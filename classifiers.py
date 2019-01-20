@@ -1,4 +1,5 @@
 import numpy as np
+from collections import Counter
 
 def euclidian_distance(x1, x2):
     distance = 0
@@ -24,37 +25,36 @@ def get_centroids(X, y):
  
     M[0] = M[0] / n1
     M[1] = M[1] / n2
-
     return M
 
 # Nearest Neighbour Classifier
-def NN(x, X):
-    i = 0
-    min_dist = np.inf
-    min_i = 0
-    for i in range(X.shape[0]):
-        dist = euclidian_distance(x, X[i])
-        if dist < min_dist:
-            min_dist = dist
-            min_i = i 
-            
-    return min_i
+def KNN(x, X, y, k=3):
+
+    distances = []
+    for idx in range(X.shape[0]):
+        dist = euclidian_distance(x, X[idx])
+        distances.append([dist, y[idx]])
+
+    labels = [i[1] for i in sorted(distances, key=lambda d: d[0])[:k]] 
+    pred = Counter(labels).most_common(1)[0][0]           
+    return pred
 
 # Minimum Distance from the Centroid Classifier
 def MDC(x, X, y):
     M = get_centroids(X, y)
-    return NN(x, M)
+    y = np.array([0, 1])
+    return KNN(x, M, y, k=1)
 
 # Quadratic Classifier
 def QC(x, X, y):
     C = np.cov(X.T)
     C_inv = np.linalg.pinv(C)
     M = get_centroids(X, y)
-    min_i = 0
+    pred = None
     min_dist = np.inf
-    for i in range(M.shape[0]):
-        dist = mahalanobis_distance(x, M[i], C_inv)
+    for label in range(M.shape[0]):
+        dist = mahalanobis_distance(x, M[label], C_inv)
         if dist < min_dist:
             min_dist = dist
-            min_i = i
-    return min_i
+            pred = label
+    return pred

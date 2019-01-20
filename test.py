@@ -6,7 +6,7 @@ import enum
 import classifiers
 
 class Classifier(enum.Enum):
-    NN = 'NN'
+    KNN = 'KNN'
     MDC = 'MDC'
     QC = 'QC'
 
@@ -31,12 +31,18 @@ def partition(X, y, percent):
 
 def test_classifier(classifier, X, y):
 
-    min_true_positives = np.inf
-    max_true_positives = 0
+    print("###### Testing " + classifier.value + " ######")
+    worst_hit_rate = np.inf
+    best_hit_rate = 0
+    best_y_pred = np.array(0)
+    worst_y_pred = np.array(0)
+    best_y_test = np.array(0)
+    worst_y_test = np.array(0)
 
-    for _ in range(100):
+    for j in range(5):
 
-        X_train, X_test, y_train, y_test = partition(X, y, 0.8)
+        print("*** Round {}:".format(j+1))
+        X_train, X_test, y_train, y_test = partition(X, y, 0.7)
         n_e = list(y_test).count(0)
         n_p = list(y_test).count(1)
         y_pred = np.empty([len(y_test)])
@@ -46,16 +52,13 @@ def test_classifier(classifier, X, y):
         true_positives = 0
 
         for i in range(len(X_test)):
-            idx = 0
-            if classifier is Classifier.NN:
-                idx = classifiers.NN(X_test[i], X_train)
-                y_pred[i] = y_train[idx]
+
+            if classifier is Classifier.KNN:
+                y_pred[i] = classifiers.KNN(X_test[i], X_train, y_train)
             elif classifier is Classifier.MDC:
-                idx = classifiers.MDC(X_test[i], X_train, y_train)
-                y_pred[i] = idx
+                y_pred[i] = classifiers.MDC(X_test[i], X_train, y_train) 
             elif classifier is Classifier.QC:
-                idx = classifiers.QC(X_test[i], X_train, y_train)
-                y_pred[i] = idx
+                y_pred[i] = classifiers.QC(X_test[i], X_train, y_train)
 
             if y_pred[i] == y_test[i]:
                 true_positives += 1
@@ -64,57 +67,38 @@ def test_classifier(classifier, X, y):
                 else:
                     true_positives_p += 1
 
-        if true_positives > max_true_positives:
-            best_y_pred = y_pred
-            best_y_test = y_test
-            max_true_positives = true_positives
-
-        if true_positives < min_true_positives:
-            worst_y_pred = y_pred
-            worst_y_test = y_test
-            min_true_positives = true_positives
-
         print("True positives: {} from {} samples".format(true_positives, len(y_test)))
         print("True positives e: {} from {} samples".format(true_positives_e, n_e))
         print("True positives p: {} from {} samples".format(true_positives_p, n_p))
-
-        hit_rates = []
-        hit_rates_p = []
-        hit_rates_e = []
-        best_y_pred = np.array(0)
-        worst_y_pred = np.array(0)
-        best_y_test = np.array(0)
-        worst_y_test = np.array(0)
         
         hit_rate = true_positives / len(y_test)
-        hit_rates.append(hit_rate)
         hit_rate_e = true_positives_e / n_e
-        hit_rates_e.append(hit_rate_e)
         hit_rate_p = true_positives_p / n_p
-        hit_rates_p.append(hit_rate_p)
 
         print("Hit rate: {}".format(hit_rate))
         print("Hit rate e: {}".format(hit_rate_e))
         print("Hit rate p: {}".format(hit_rate_p))
 
-    print("Best result: {}".format(max_true_positives))
+        if hit_rate > best_hit_rate:
+            best_y_pred = y_pred
+            best_y_test = y_test
+            best_hit_rate = hit_rate
+
+        if hit_rate < worst_hit_rate:
+            worst_y_pred = y_pred
+            worst_y_test = y_test
+            worst_hit_rate = hit_rate
+
+    print("Best result: {}".format(best_hit_rate ))
     print("Confusion matrix best result: ")
     cnf_matrix_best = confusion_matrix(best_y_test, best_y_pred)
     print(cnf_matrix_best)
 
-    print("Worst result: {}".format(min_true_positives))
+    print("Worst result: {}".format(worst_hit_rate))
     print("Confusion matrix worst result: ")
     cnf_matrix_worst = confusion_matrix(worst_y_test, worst_y_pred)
     print(cnf_matrix_worst)
 
-    print("Hit rates: " )
-    print(hit_rates)
-
-    print("Hit rates e: ")
-    print(hit_rates_e)
-
-    print("Hit rates p: ")
-    print(hit_rates_p)
 
 def main():
 
@@ -122,7 +106,7 @@ def main():
     X = df.drop(columns=['id', 'Class']).values
     y = df['Class'].values
 
-    test_classifier(Classifier.NN, X, y)
+    test_classifier(Classifier.KNN, X, y)
     test_classifier(Classifier.MDC, X, y)
     test_classifier(Classifier.QC, X, y)
 
